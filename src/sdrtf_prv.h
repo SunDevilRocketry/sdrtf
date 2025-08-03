@@ -11,8 +11,8 @@
 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef USB_H
-#define USB_H
+#ifndef SDRTF_PRV_GUARD_H
+#define SDRTF_PRV_GUARD_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,12 +61,12 @@ void test_pass
     (
     char* msg
     );
-    
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* USB_H */
+#endif /* SDRTF_PRV_GUARD_H */
 
 /*******************************************************************************
 * END OF FILE                                                                  * 

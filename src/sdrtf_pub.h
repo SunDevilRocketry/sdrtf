@@ -10,8 +10,8 @@
 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef USB_H
-#define USB_H
+#ifndef SDRTF_PUB_GUARD_H
+#define SDRTF_PUB_GUARD_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,10 +56,9 @@ extern "C" {
 
 #define TEST_ASSERT_EQ_MEMORY( msg, actual, expected, size ) TEST_assert_memory( ASSERT_TYPE_EQ, msg, actual, expected, size, __LINE__, __FILE__ )
 #define TEST_ASSERT_NE_MEMORY( msg, actual, expected, size ) TEST_assert_memory( ASSERT_TYPE_NE, msg, actual, expected, size, __LINE__, __FILE__ )
-#define TEST_ASSERT_LT_MEMORY( msg, actual, expected, size ) TEST_assert_memory( ASSERT_TYPE_LT, msg, actual, expected, size, __LINE__, __FILE__ )
-#define TEST_ASSERT_GT_MEMORY( msg, actual, expected, size ) TEST_assert_memory( ASSERT_TYPE_GT, msg, actual, expected, size, __LINE__, __FILE__ )
-#define TEST_ASSERT_LE_MEMORY( msg, actual, expected, size ) TEST_assert_memory( ASSERT_TYPE_LE, msg, actual, expected, size, __LINE__, __FILE__ )
-#define TEST_ASSERT_GE_MEMORY( msg, actual, expected, size ) TEST_assert_memory( ASSERT_TYPE_GE, msg, actual, expected, size, __LINE__, __FILE__ )
+
+#define TEST_ASSERT_EQ_STRING( msg, actual, expected, size ) TEST_assert_string( ASSERT_TYPE_EQ, msg, actual, expected, size, __LINE__, __FILE__ )
+#define TEST_ASSERT_NE_STRING( msg, actual, expected, size ) TEST_assert_string( ASSERT_TYPE_NE, msg, actual, expected, size, __LINE__, __FILE__ )
 
 /*------------------------------------------------------------------------------
  Typdefs 
@@ -151,11 +150,22 @@ void TEST_assert_memory
     const char* file /* pass in __FILE__ from the caller */
     );
 
+void TEST_assert_string
+    (
+    ASSERT_TYPE assert_type,
+    char* msg,
+    char* actual, 
+    char* expected,
+    size_t size, /* maximum size of the string */
+    uint32_t line, /* pass in __LINE__ from the caller */
+    const char* file /* pass in __FILE__ from the caller */
+    );
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* USB_H */
+#endif /* SDRTF_PUB_GUARD_H */
 
 /*******************************************************************************
 * END OF FILE                                                                  * 

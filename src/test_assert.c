@@ -92,7 +92,7 @@ switch( assert_type )
             }
 
     default:
-        test_error( "Improper ASSERT_TYPE used for TEST_assert.", 50 );
+        test_error( "Improper ASSERT_TYPE used for TEST_assert." );
         return;
     }
 
@@ -223,7 +223,7 @@ switch( assert_type )
             }
 
     default:
-        test_error( "Improper ASSERT_TYPE used for TEST_assert_float.", 50 );
+        test_error( "Improper ASSERT_TYPE used for TEST_assert_float." );
         return;
     }
 
@@ -351,7 +351,7 @@ switch( assert_type )
             }
 
     default:
-        test_error( "Improper ASSERT_TYPE used for TEST_assert_uint.", 50 );
+        test_error( "Improper ASSERT_TYPE used for TEST_assert_uint." );
         return;
     }
 
@@ -479,7 +479,7 @@ switch( assert_type )
             }
 
     default:
-        test_error( "Improper ASSERT_TYPE used for TEST_assert_sint.", 50 );
+        test_error( "Improper ASSERT_TYPE used for TEST_assert_sint." );
         return;
     }
 
@@ -511,7 +511,7 @@ Perform Validation
 ------------------------------------------------------------------------------*/
 if( actual == NULL || expected == NULL)
     {
-    test_error( "NULLPTR passed to TEST_assert_memory.", 38 );
+    test_error( "NULLPTR passed to TEST_assert_memory." );
     }
 
 /*------------------------------------------------------------------------------
@@ -553,8 +553,97 @@ switch( assert_type )
         return;
 
     default:
-        test_error( "Improper ASSERT_TYPE used for TEST_assert_memory.", 50 );
+        test_error( "Improper ASSERT_TYPE used for TEST_assert_memory." );
         return;
     }
 
 } /* TEST_assert_memory */
+
+/*******************************************************************************
+*                                                                              *
+* PROCEDURE:                                                                   * 
+* 		TEST_assert_string                                                     *
+*                                                                              *
+* DESCRIPTION:                                                                 * 
+* 		Verify statement on a C-style string.                                  *
+*                                                                              *
+*******************************************************************************/
+void TEST_assert_string
+    (
+    ASSERT_TYPE assert_type,
+    char* msg,
+    char* actual, 
+    char* expected,
+    size_t size, /* maximum size of the string */
+    uint32_t line, /* pass in __LINE__ from the caller */
+    const char* file /* pass in __FILE__ from the caller */
+    )
+{
+/*------------------------------------------------------------------------------
+Perform Validation
+------------------------------------------------------------------------------*/
+if( actual == NULL || expected == NULL)
+    {
+    test_error( "NULLPTR passed to TEST_assert_string." );
+    }
+
+/*------------------------------------------------------------------------------
+Byte-by-byte comparison
+------------------------------------------------------------------------------*/
+switch( assert_type ) 
+    {
+    case ASSERT_TYPE_EQ:
+        for( int i = 0; i < size; i++ )
+            {
+            if( ((uint8_t*)actual)[i] != ((uint8_t*)expected)[i] )
+                {
+                char err_msg[128];
+                sprintf( err_msg, "Unequal string at %s:%d", file, line );
+                test_fail( msg, err_msg );
+                fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+                return; 
+                }
+
+            if( ( ((uint8_t*)actual)[i] == ((uint8_t*)expected)[i] ) /* both chars equal */
+             && ( ((char*)actual)[i] == '\0' ) ) /* null terminator */
+                {
+                test_pass( msg );
+                fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+                }
+            }
+        test_pass( msg );
+        fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+        return;
+
+    case ASSERT_TYPE_NE:
+        for( int i = 0; i < size; i++ )
+            {
+            if( ((uint8_t*)actual)[i] != ((uint8_t*)expected)[i] )
+                {
+                test_pass( msg );
+                fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+                return;
+                }
+
+            if( ( ((uint8_t*)actual)[i] == ((uint8_t*)expected)[i] ) /* both chars equal */
+             && ( ((char*)actual)[i] == '\0' ) ) /* null terminator */
+                {
+                char err_msg[128];
+                sprintf( err_msg, "Equal string at %s:%d", file, line );
+                test_fail( msg, err_msg );
+                fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+                }
+            }
+
+        char err_msg[128];
+        sprintf( err_msg, "Equal memory at %s:%d", file, line );
+        test_fail( msg, err_msg );
+        fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+        return;
+
+    default:
+        test_error( "Improper ASSERT_TYPE used for TEST_assert_string." );
+        return;
+    }
+
+} /* TEST_assert_string */
