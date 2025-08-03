@@ -71,7 +71,7 @@ Procedures
 void TEST_init
     ( 
     FILE* outfile_handle_in,
-    char test_name_in[32]
+    const char* test_name_in
     )
 {
 /*------------------------------------------------------------------------------
@@ -86,7 +86,7 @@ if( outfile_handle_in == NULL || test_name_in == NULL )
 Set Globals
 ------------------------------------------------------------------------------*/
 outfile_handle = outfile_handle_in;
-strncpy( test_name, test_name_in, 32 );
+strcpy( test_name, test_name_in );
 fail_counter = 0;
 pass_counter = 0;
 passes_since_last_group = 0;
@@ -112,7 +112,7 @@ print_test_header();
 *******************************************************************************/
 void TEST_begin_group
     (
-    char* group_description
+    const char* group_description
     )
 {
 if( !in_test_group )
@@ -138,14 +138,15 @@ else
 *******************************************************************************/
 void TEST_end_group
     (
-    char* group_description
+    const char* group_description
     )
 {
 if( in_test_group )
     {
-    fprintf( outfile_handle, "Passes: %d\n", pass_counter - passes_since_last_group );
-    fprintf( outfile_handle, "Fails:  %d\n", fail_counter - fails_since_last_group );
-    fprintf( outfile_handle, "\n--END TEST GROUP: %s--\n\n", group_description );
+    fprintf( outfile_handle, "--TEST GROUP RESULTS:--\n" );
+    fprintf( outfile_handle, "Group Passes: %d\n", pass_counter - passes_since_last_group );
+    fprintf( outfile_handle, "Group Fails:  %d\n", fail_counter - fails_since_last_group );
+    fprintf( outfile_handle, "--END TEST GROUP: %s--\n\n", group_description );
     passes_since_last_group = pass_counter;
     fails_since_last_group = fail_counter;
     in_test_group = false;
@@ -213,7 +214,7 @@ printf( "Test aborted with error: %s", msg );
 /* log to file if applicable */
 if( outfile_handle != NULL )
     {
-    fprintf_s( outfile_handle, "\nTest aborted with error: %s\n", msg );
+    fprintf( outfile_handle, "\nTest aborted with error: %s\n", msg );
     }
 
 /* abort */
@@ -280,7 +281,7 @@ static void print_test_header
 {
 /* Get locals */
 time_t curr_time = time( NULL );
-struct tm tm = *localtime( curr_time );
+struct tm tm = *localtime( &curr_time );
 char date[20];
 char time[20];
 bool repo_clean = true;
@@ -304,9 +305,11 @@ fprintf( outfile_handle, "Build Date:  %s\n", __DATE__ );
 fprintf( outfile_handle, "Build Time:  %s\n", __TIME__ );
 fprintf( outfile_handle, "Run Date:    %s\n", date );
 fprintf( outfile_handle, "Run Time:    %s\n", time );
-fprintf( outfile_handle, "ISO C?:      %d\n", __STDC__ );
 #if( defined( __STDC__ ) && __STDC__ )
-fprintf( outfile_handle, "C Standard:  %d\n", __STDC_VERSION__ );
+fprintf( outfile_handle, "ISO C?:      %d\n", __STDC__ );
+fprintf( outfile_handle, "C Standard:  %ld\n", __STDC_VERSION__ );
+#else
+fprintf( outfile_handle, "ISO C?:      %d\n", 0 );
 #endif
 /* GNU compilers*/
 #if( defined( __GNUC__ ) && __GNUC__ )
@@ -317,7 +320,7 @@ fprintf( outfile_handle, "GCC Version: %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __
 fprintf( outfile_handle, "\n--Formal Test Run Info--\n" );
 #if( defined( TEST_FORMAL_RUN ) && TEST_FORMAL_RUN )
 fprintf( outfile_handle, "Run Type:    FORMAL\n" );
-if( system("git diff --exit-codeg") == 0 )
+if( system("git diff --exit-code") == 0 )
     {
     fprintf( outfile_handle, "Repo Status: Clean\n" );
     repo_clean = true;
@@ -343,7 +346,7 @@ TEST_ASSERT_TRUE( "Test Environment: ISO C standard not defined", false );
 #endif
 
 #if( defined( __GNUC__ ) && __GNUC__ )
-TEST_ASSERT_GE_UINT( "Test Environment: Compiler is supported GCC version", __GNUC__, 14 );
+TEST_ASSERT_GE_UINT( "Test Environment: Compiler is supported GCC version", __GNUC__, TEST_MIN_SUPPORTED_GCC_VERSION );
 #else
 TEST_ASSERT_TRUE( "Test Environment: Unsupported Compiler", false );
 #endif

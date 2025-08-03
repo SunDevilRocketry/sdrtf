@@ -80,17 +80,17 @@ typedef enum {
 void TEST_init
     ( 
     FILE* outfile_handle_in,
-    char test_name_in[32]
+    const char* test_name_in
     );
 
 void TEST_begin_group
     (
-    char* group_description
+    const char* group_description
     );
 
 void TEST_end_group
     (
-    char* group_description
+    const char* group_description
     );
 
 uint32_t TEST_finalize

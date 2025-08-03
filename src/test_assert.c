@@ -527,12 +527,12 @@ switch( assert_type )
                 char err_msg[128];
                 sprintf( err_msg, "Unequal memory at %s:%d", file, line );
                 test_fail( msg, err_msg );
-                fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+                fprintf( outfile_handle, "Actual (address): 0x%08x | Expected (address): 0x%08x\n\n", (int)actual, (int)expected );
                 return; 
                 }
             }
         test_pass( msg );
-        fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+        fprintf( outfile_handle, "Actual (address): 0x%08x | Expected (address): 0x%08x\n\n", (int)actual, (int)expected );
         return;
 
     case ASSERT_TYPE_NE:
@@ -541,7 +541,7 @@ switch( assert_type )
             if( ((uint8_t*)actual)[i] != ((uint8_t*)expected)[i] )
                 {
                 test_pass( msg );
-                fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+                fprintf( outfile_handle, "Actual (address): 0x%08x | Expected (address): 0x%08x\n\n", (int)actual, (int)expected );
                 return;
                 }
             }
@@ -549,7 +549,7 @@ switch( assert_type )
         char err_msg[128];
         sprintf( err_msg, "Equal memory at %s:%d", file, line );
         test_fail( msg, err_msg );
-        fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+        fprintf( outfile_handle, "Actual (address): 0x%08x | Expected (address): 0x%08x\n\n", (int)actual, (int)expected );
         return;
 
     default:
@@ -558,6 +558,7 @@ switch( assert_type )
     }
 
 } /* TEST_assert_memory */
+
 
 /*******************************************************************************
 *                                                                              *
@@ -600,19 +601,20 @@ switch( assert_type )
                 char err_msg[128];
                 sprintf( err_msg, "Unequal string at %s:%d", file, line );
                 test_fail( msg, err_msg );
-                fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+                fprintf( outfile_handle, "Actual (address): 0x%08x | Expected (address): 0x%08x\n\n", (int)actual, (int)expected );
                 return; 
                 }
 
             if( ( ((uint8_t*)actual)[i] == ((uint8_t*)expected)[i] ) /* both chars equal */
-             && ( ((char*)actual)[i] == '\0' ) ) /* null terminator */
+             && ( ((char*)actual)[i] == '\0' || ((char*)expected)[i] == '\0' ) ) /* null terminator */
                 {
                 test_pass( msg );
-                fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+                fprintf( outfile_handle, "Actual (address): 0x%08x | Expected (address): 0x%08x\n\n", (int)actual, (int)expected );
+                return;
                 }
             }
         test_pass( msg );
-        fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+        fprintf( outfile_handle, "Actual (address): 0x%08x | Expected (address): 0x%08x\n\n", (int)actual, (int)expected );
         return;
 
     case ASSERT_TYPE_NE:
@@ -621,7 +623,7 @@ switch( assert_type )
             if( ((uint8_t*)actual)[i] != ((uint8_t*)expected)[i] )
                 {
                 test_pass( msg );
-                fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+                fprintf( outfile_handle, "Actual (address): 0x%08x | Expected (address): 0x0x%08x\n\n", (int)actual, (int)expected );
                 return;
                 }
 
@@ -631,14 +633,15 @@ switch( assert_type )
                 char err_msg[128];
                 sprintf( err_msg, "Equal string at %s:%d", file, line );
                 test_fail( msg, err_msg );
-                fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+                fprintf( outfile_handle, "Actual (address): 0x%08x | Expected (address): 0x%08x\n\n", (int)actual, (int)expected );
+                return;
                 }
             }
 
         char err_msg[128];
         sprintf( err_msg, "Equal memory at %s:%d", file, line );
         test_fail( msg, err_msg );
-        fprintf( outfile_handle, "Actual (address): %08x | Expected (address): %08x\n\n", (int)actual, (int)expected );
+        fprintf( outfile_handle, "Actual (address): 0x%08x | Expected (address): 0x%08x\n\n", (int)actual, (int)expected );
         return;
 
     default:
