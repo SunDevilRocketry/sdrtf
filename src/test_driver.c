@@ -160,6 +160,42 @@ else
 /*******************************************************************************
 *                                                                              *
 * PROCEDURE:                                                                   * 
+* 		TEST_finalize                                                          *
+*                                                                              *
+* DESCRIPTION:                                                                 * 
+* 		Finalize the test.                                                     *
+*                                                                              *
+*******************************************************************************/
+uint32_t TEST_finalize
+    (
+    void
+    )
+{
+char status[5];
+if( fail_counter == 0 )
+    {
+    strcpy( status, "PASS" );
+    }
+else
+    {
+    strcpy( status, "FAIL" );
+    }
+
+fprintf( outfile_handle, "----------------------------------------\n" );
+fprintf( outfile_handle, "-------------Test Complete--------------\n" );
+fprintf( outfile_handle, "----------------------------------------\n" );
+fprintf( outfile_handle, "Passes: %d\n", pass_counter );
+fprintf( outfile_handle, "Fails:  %d\n", fail_counter );
+fprintf( outfile_handle, "Result: %s\n", status );
+fprintf( outfile_handle, "----------------------------------------\n" );
+
+return fail_counter;
+}
+
+
+/*******************************************************************************
+*                                                                              *
+* PROCEDURE:                                                                   * 
 * 		test_error                                                             *
 *                                                                              *
 * DESCRIPTION:                                                                 * 

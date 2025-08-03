@@ -84,6 +84,21 @@ void TEST_init
     char test_name_in[32]
     );
 
+void TEST_begin_group
+    (
+    char* group_description
+    );
+
+void TEST_end_group
+    (
+    char* group_description
+    );
+
+uint32_t TEST_finalize
+    (
+    void
+    );
+
 /* test_assert.c */
 void TEST_assert
     (
