@@ -320,16 +320,6 @@ fprintf( outfile_handle, "GCC Version: %d.%d.%d\n", __GNUC__, __GNUC_MINOR__, __
 fprintf( outfile_handle, "\n--Formal Test Run Info--\n" );
 #if( defined( TEST_FORMAL_RUN ) && TEST_FORMAL_RUN )
 fprintf( outfile_handle, "Run Type:    FORMAL\n" );
-if( system("git diff --exit-code") == 0 )
-    {
-    fprintf( outfile_handle, "Repo Status: Clean\n" );
-    repo_clean = true;
-    }
-else 
-    {
-    fprintf( outfile_handle, "Repo Status: Dirty\n" );
-    repo_clean = false;
-    }
 #else
 fprintf( outfile_handle, "Run Type:    INFORMAL\n\n" );
 #endif
