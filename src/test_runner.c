@@ -615,6 +615,7 @@ void _test_execute_emulator
 {
 /* Open results file */
 char results_file_name[FILE_NAME_BUFFER_SIZE] = INTERMEDIATE_RESULTS_DIR;
+char secondary_buffer[FILE_LINE_BUFFER_SIZE + 32];
 char line_buffer[FILE_LINE_BUFFER_SIZE];
 strncat(results_file_name, results_file, FILE_NAME_BUFFER_SIZE - sizeof(INTERMEDIATE_RESULTS_DIR));
 FILE* fd = fopen(results_file_name, "r");
@@ -628,7 +629,7 @@ while(fgets(line_buffer, FILE_LINE_BUFFER_SIZE, fd))
     {
     int idx = 0;
     /* defensive: check for newline to ensure no truncation */
-    for( int i = 0; i < FILE_LINE_BUFFER_SIZE; i++ )
+    for( int i = 0; i < FILE_LINE_BUFFER_SIZE - 1; i++ )
         {
         if( (i == FILE_LINE_BUFFER_SIZE - 1) && line_buffer[i] != '\n')
             {
@@ -644,11 +645,13 @@ while(fgets(line_buffer, FILE_LINE_BUFFER_SIZE, fd))
     /* identify pass/fail */
     if( line_buffer[0] == '1' )
         {
-        _test_pass(line_buffer+1);
+        strcpy(secondary_buffer, line_buffer+1);
+        strcat(secondary_buffer, "\nPASS: Assertion passed.\n");
+        _test_pass(secondary_buffer);
         }
     else if( line_buffer[0] == '0' )
         {
-        _test_fail(line_buffer+1, "This assertion failed. See the msg field for more info.");
+        _test_fail(line_buffer+1, "This assertion failed. See script logs for more details.\n");
         }
     else
         {
