@@ -206,6 +206,79 @@ _test_finalize();
 /*******************************************************************************
 *                                                                              *
 * PROCEDURE:                                                                   * 
+* 		_test_init_emulator                                                    *
+*                                                                              *
+* DESCRIPTION:                                                                 * 
+* 		Initialize a unit test.                                                *
+*                                                                              *
+*******************************************************************************/
+void _test_init_emulator
+    ( 
+    const char* test_name_in,
+    emulator_test* test_array,
+    uint16_t test_array_count
+    )
+{
+FILE* outfile = fopen( "results.txt", "w" );
+
+/*------------------------------------------------------------------------------
+Validate Inputs
+------------------------------------------------------------------------------*/
+if( outfile == NULL || test_name_in == NULL )
+    {
+    _test_error( "Null pointers given to test_init." );
+    }
+
+if( type_of_test == TEST_TYPE_HW_SW_INTEGRATION )
+    {
+    _test_error( "Invalid Test Type -- HW/SW integration tests cannot yet be automated." );
+    }
+else if( type_of_test == TEST_TYPE_UNIT_TEST )
+    {
+    _test_error( "Invalid Test Type -- Unit testing cannot be performed with the emulator." );
+    }
+else if( type_of_test > TEST_TYPE_HW_SW_INTEGRATION )
+    {
+    _test_error( "Invalid Test Type -- Test type does not exist." );
+    }
+
+/*------------------------------------------------------------------------------
+Set Globals
+------------------------------------------------------------------------------*/
+outfile_handle = outfile;
+strcpy( test_name, test_name_in );
+fail_counter = 0;
+pass_counter = 0;
+passes_since_last_group = 0;
+fails_since_last_group = 0;
+in_test_group = false;
+
+/*------------------------------------------------------------------------------
+Write Header Output
+------------------------------------------------------------------------------*/
+print_test_header();
+
+/*------------------------------------------------------------------------------
+Run Tests
+------------------------------------------------------------------------------*/
+for( int i = 0; i < test_array_count; i++ )
+	{
+	_test_begin_group( test_array[i].test_name );
+    _test_execute_emulator( test_array[i].results_file );
+	_test_end_group( test_array[i].test_name );
+	}
+
+/*------------------------------------------------------------------------------
+Finalize Tests
+------------------------------------------------------------------------------*/
+_test_finalize();
+
+} /* _test_init */
+
+
+/*******************************************************************************
+*                                                                              *
+* PROCEDURE:                                                                   * 
 * 		_test_begin_group                                                      *
 *                                                                              *
 * DESCRIPTION:                                                                 * 
@@ -533,3 +606,78 @@ else
     }
 
 } /* get_gcovr_version */
+
+
+void _test_execute_emulator
+    (
+    const char* results_file
+    )
+{
+/* Open results file */
+char results_file_name[FILE_NAME_BUFFER_SIZE] = INTERMEDIATE_RESULTS_DIR;
+char line_buffer[FILE_LINE_BUFFER_SIZE];
+strncat(results_file_name, results_file, FILE_NAME_BUFFER_SIZE - sizeof(INTERMEDIATE_RESULTS_DIR));
+FILE* fd = fopen(results_file_name, "r");
+if( fd == NULL )
+    {
+    printf(results_file_name);
+    _test_error("Intermediate results file could not be opened.\n");
+    }
+
+while(fgets(line_buffer, FILE_LINE_BUFFER_SIZE, fd))
+    {
+    int idx = 0;
+    /* defensive: check for newline to ensure no truncation */
+    for( int i = 0; i < FILE_LINE_BUFFER_SIZE; i++ )
+        {
+        if( (i == FILE_LINE_BUFFER_SIZE - 1) && line_buffer[i] != '\n')
+            {
+            _test_error("Malformed intermediate results file (newline not present in line).");
+            }
+        else if( line_buffer[i] == '\n' )
+            {
+            line_buffer[i] = '\0';
+            break;
+            }
+        }
+    
+    /* identify pass/fail */
+    if( line_buffer[0] == '1' )
+        {
+        _test_pass(line_buffer+1);
+        }
+    else if( line_buffer[0] == '0' )
+        {
+        _test_fail(line_buffer+1, "This assertion failed. See the msg field for more info.");
+        }
+    else
+        {
+        _test_error("Malformed intermediate results file (did not begin with an int).");
+        }
+    }
+
+if( ferror(fd) )
+    {
+    _test_error("A file IO error has occurred.");
+    }
+
+} /* _test_execute_emulator */
+
+
+#ifdef EMULATOR_TEST
+/* Entry point for emulator tests. */
+int main
+    (
+    int argc,
+    char* argv[]
+    )
+{
+emulator_test test_arr[] =
+    {
+    #include "test_cases.inc"
+    };
+TEST_set_type( TEST_TYPE_SW_INTEGRATION );
+_test_init_emulator( argv[1], test_arr, sizeof(test_arr) / sizeof(emulator_test) );
+
+} /* main */
+#endif

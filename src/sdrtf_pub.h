@@ -106,6 +106,12 @@ typedef struct unit_test {
 	test_callback test_pointer;
 } unit_test;
 
+/* A test should have a name and a file with results. */
+typedef struct emulator_test {
+	const char* test_name;
+	const char* results_file;
+} emulator_test;
+
 /*------------------------------------------------------------------------------
  Function Prototypes 
 ------------------------------------------------------------------------------*/

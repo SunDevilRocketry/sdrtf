@@ -45,6 +45,10 @@ extern "C" {
 #define TEST_MIN_SUPPORTED_GCOVR_VERSION 7
 #define TEST_MAX_SUPPORTED_GCOVR_VERSION 8
 
+#define INTERMEDIATE_RESULTS_DIR "intermediate_results/"
+#define FILE_NAME_BUFFER_SIZE 256
+#define FILE_LINE_BUFFER_SIZE 1024
+
 /*------------------------------------------------------------------------------
  Typdefs 
 ------------------------------------------------------------------------------*/
@@ -90,6 +94,11 @@ void _test_fail
 void _test_pass
     (
     const char* msg
+    );
+
+void _test_execute_emulator
+    (
+    const char* results_file
     );
 
 #ifdef __cplusplus
