@@ -477,6 +477,13 @@ fprintf( outfile_handle, "----------------------------------------\n\n" );
 
 _test_begin_group( "Check test environment" );
 
+/* Check if release build requirement is satisfied */
+#if defined( DEBUG ) || !defined( RELBLD )
+TEST_ASSERT_TRUE( "Test Environment: Release build", false );
+#else
+TEST_ASSERT_TRUE( "Test Environment: Release build", true );
+#endif
+
 /* Requires an ISO C compiler. We use features up to C17. */
 #if( defined( __STDC__ ) && __STDC__ )
 TEST_ASSERT_GE_UINT( "Test Environment: ISO C standard is C17 or greater", __STDC_VERSION__, 201700L );
