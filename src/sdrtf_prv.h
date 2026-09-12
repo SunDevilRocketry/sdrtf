@@ -63,7 +63,8 @@ extern char test_name[32];
 /* test_runner.c */
 void _test_begin_group
     (
-    const char* group_description
+    const char* group_description,
+    const char* requirement_tag
     );
 
 void _test_end_group

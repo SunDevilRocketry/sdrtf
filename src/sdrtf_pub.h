@@ -44,6 +44,9 @@ extern "C" {
 /* Initialize Test */
 #define TEST_INITIALIZE_TEST( test_suite_name, test_array ) _test_init( test_suite_name, test_array, (sizeof(test_array) / sizeof(test_array[0])) )
 
+/* Begin a subgroup, optionally associated with a requirement tag. */
+#define TEST_begin_nested_case( case_description, ... ) _test_begin_nested_case( case_description, ##__VA_ARGS__ )
+
 /* Asserts */
 #define TEST_ASSERT_TRUE( msg, actual ) _test_assert( ASSERT_TYPE_EQ, msg, actual, __LINE__, __FILE__ )
 #define TEST_ASSERT_FALSE( msg, actual ) _test_assert( ASSERT_TYPE_NE, msg, actual, __LINE__, __FILE__ )
@@ -104,6 +107,7 @@ typedef void (*test_callback)(void);
 typedef struct unit_test {
 	const char* test_name;
 	test_callback test_pointer;
+    const char* requirement_tag;
 } unit_test;
 
 /*------------------------------------------------------------------------------
@@ -111,9 +115,10 @@ typedef struct unit_test {
 ------------------------------------------------------------------------------*/
 
 /* test_runner.c -- PUBLIC */
-void TEST_begin_nested_case
+void _test_begin_nested_case
     (
-    const char* case_description
+    const char* case_description,
+    const char* requirement_tag
     );
 
 void TEST_end_nested_case

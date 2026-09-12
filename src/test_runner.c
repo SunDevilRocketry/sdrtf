@@ -49,6 +49,10 @@ Locals
 ------------------------------------------------------------------------------*/
 uint32_t passes_since_last_group;
 uint32_t fails_since_last_group;
+uint32_t passes_since_last_nested_case;
+uint32_t fails_since_last_nested_case;
+const char* nested_case_requirement_tag;
+const char* group_requirement_tag;
 bool     in_test_group;
 bool     in_nested_case;
 uint32_t nested_case_num;
@@ -89,7 +93,8 @@ Procedures
 *******************************************************************************/
 void TEST_begin_nested_case
     (
-    const char* case_description
+    const char* case_description,
+    const char* requirement_tag
     )
 {
 
@@ -97,6 +102,9 @@ if( in_test_group && !in_nested_case )
     {
     fprintf( outfile_handle, "-> BEGIN TEST CASE %d: %s\n\n", nested_case_num, case_description );
     in_nested_case = true;
+    passes_since_last_nested_case = pass_counter;
+    fails_since_last_nested_case = fail_counter;
+    nested_case_requirement_tag = requirement_tag;
     }
 else
     {
@@ -122,6 +130,12 @@ void TEST_end_nested_case
 {
 if( in_test_group )
     {
+    if( nested_case_requirement_tag != NULL
+     && ( pass_counter != passes_since_last_nested_case
+       || fail_counter != fails_since_last_nested_case ) )
+        {
+        fprintf( outfile_handle, "Requirements: %s\n", nested_case_requirement_tag );
+        }
     fprintf( outfile_handle, "-> END TEST CASE\n\n" );
     in_nested_case = false;
     nested_case_num++;
@@ -190,7 +204,7 @@ Run Tests
 ------------------------------------------------------------------------------*/
 for( int i = 0; i < test_array_count; i++ )
 	{
-	_test_begin_group( test_array[i].test_name );
+    _test_begin_group( test_array[i].test_name, test_array[i].requirement_tag );
 	test_array[i].test_pointer();
 	_test_end_group( test_array[i].test_name );
 	}
@@ -214,7 +228,8 @@ _test_finalize();
 *******************************************************************************/
 void _test_begin_group
     (
-    const char* group_description
+    const char* group_description,
+    const char* requirement_tag
     )
 {
 if( !in_test_group && !in_nested_case )
@@ -222,6 +237,9 @@ if( !in_test_group && !in_nested_case )
     fprintf( outfile_handle, "\n--BEGIN TEST GROUP: %s--\n\n", group_description );
     in_test_group = true;
     nested_case_num = 0;
+    passes_since_last_group = pass_counter;
+    fails_since_last_group = fail_counter;
+    group_requirement_tag = requirement_tag;
     }
 else
     {
@@ -250,6 +268,12 @@ if( in_test_group )
     fprintf( outfile_handle, "--TEST GROUP RESULTS:--\n" );
     fprintf( outfile_handle, "Group Passes: %d\n", pass_counter - passes_since_last_group );
     fprintf( outfile_handle, "Group Fails:  %d\n", fail_counter - fails_since_last_group );
+    if( group_requirement_tag != NULL
+     && ( pass_counter != passes_since_last_group
+       || fail_counter != fails_since_last_group ) )
+        {
+        fprintf( outfile_handle, "Requirement Tag: %s\n", group_requirement_tag );
+        }
     fprintf( outfile_handle, "--END TEST GROUP: %s--\n\n", group_description );
     passes_since_last_group = pass_counter;
     fails_since_last_group = fail_counter;
@@ -475,7 +499,7 @@ fprintf( outfile_handle, "\n----------------------------------------\n" );
 fprintf( outfile_handle, "----------------Results-----------------\n" );
 fprintf( outfile_handle, "----------------------------------------\n\n" );
 
-_test_begin_group( "Check test environment" );
+_test_begin_group( "Check test environment", NULL );
 
 /* Check if release build requirement is satisfied */
 #if defined( DEBUG ) || !defined( RELBLD )
