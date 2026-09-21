@@ -46,7 +46,10 @@ extern "C" {
 #define TEST_INITIALIZE_TEST( test_suite_name, test_array ) _test_init( test_suite_name, test_array, (sizeof(test_array) / sizeof(test_array[0])) )
 
 /* Begin a subgroup, optionally associated with a requirement tag. */
-#define TEST_begin_nested_case( case_description, ... ) _test_begin_nested_case( case_description, ##__VA_ARGS__ )
+#define _tmp_FIRST_ARG( first, ... ) first /* do not use this macro directly */
+#define TEST_begin_nested_case( case_description, ... ) \
+    _test_begin_nested_case( (case_description), \
+        _tmp_FIRST_ARG( __VA_ARGS__ __VA_OPT__(,) NULL ) )
 
 /* Asserts */
 #define TEST_ASSERT_TRUE( msg, actual ) _test_assert( ASSERT_TYPE_EQ, msg, actual, __LINE__, __FILE__ )
@@ -116,12 +119,6 @@ typedef struct unit_test {
 ------------------------------------------------------------------------------*/
 
 /* test_runner.c -- PUBLIC */
-void _test_begin_nested_case
-    (
-    const char* case_description,
-    const char* requirement_tag
-    );
-
 void TEST_end_nested_case
     (
     void
@@ -133,6 +130,12 @@ void TEST_set_type
     );
 
 /* test_runner.c -- PRIVATE */
+void _test_begin_nested_case
+    (
+    const char* case_description,
+    const char* requirement_tag
+    );
+    
 void _test_init
     ( 
     const char* test_name_in,
