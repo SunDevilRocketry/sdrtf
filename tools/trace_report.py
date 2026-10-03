@@ -9,8 +9,9 @@ from pathlib import Path
 
 
 RESULT_TAG_PATTERN = re.compile(
-    r"(?:Requirement Tag|Requirements):\s*(?P<tag>\S+)"
+    r"(?:Requirement Tag|Requirements):\s*(?P<tags>[^\r\n]+)"
 )
+REQUIREMENT_TAG_PATTERN = re.compile(r"RQ\.[A-Z]+\.\d+")
 ANALYSIS_RESULT_PATTERN = re.compile(
     r"\|\s*`(?P<tag>RQ\.[^`]+)`\s*\|.*?\|\s*"
     r"(?:<[^>]+>)*\s*(?P<status>PASS|FAIL)\s*(?:<[^>]+>)*\s*\|",
@@ -91,7 +92,8 @@ def load_results(files: list[Path], root: Path) -> dict[str, list[tuple[str, boo
         result_path = path.relative_to(root).as_posix()
         failed = any(int(match.group("count")) > 0 for match in FAIL_PATTERN.finditer(content))
         for match in RESULT_TAG_PATTERN.finditer(content):
-            traces.setdefault(match.group("tag"), []).append((result_path, failed))
+            for tag in REQUIREMENT_TAG_PATTERN.findall(match.group("tags")):
+                traces.setdefault(tag, []).append((result_path, failed))
         for match in ANALYSIS_RESULT_PATTERN.finditer(content):
             traces.setdefault(match.group("tag"), []).append(
                 (result_path, match.group("status").upper() == "FAIL")
