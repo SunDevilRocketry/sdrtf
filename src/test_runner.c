@@ -85,7 +85,7 @@ Procedures
 /*******************************************************************************
 *                                                                              *
 * PROCEDURE:                                                                   * 
-* 		TEST_begin_nested_case                                                 *
+* 		_test_begin_nested_case                                                 *
 *                                                                              *
 * DESCRIPTION:                                                                 * 
 * 		Begin the nested test case.                                            *
@@ -508,16 +508,14 @@ TEST_ASSERT_TRUE( "Test Environment: Release build", false );
 TEST_ASSERT_TRUE( "Test Environment: Release build", true );
 #endif
 
-/* Requires an ISO C compliant compiler. We have recently upgraded to C23. */
+/* Requires an ISO C compiler. We use features up to C17. */
 #if( defined( __STDC__ ) && __STDC__ )
-/* Remark: Older versions (GCC 14) defined the C23 standard as 2020. GCC 15 and up use the correct macro.
-   GCC 14 is permitted for use with us, so we will use this incorrect def as the lower bound. */
-TEST_ASSERT_GE_UINT( "Test Environment: GNU C standard is C23 or greater", __STDC_VERSION__, 202000L );
+TEST_ASSERT_GE_UINT( "Test Environment: ISO C standard is C17 or greater", __STDC_VERSION__, 201700L );
 #else
 TEST_ASSERT_TRUE( "Test Environment: ISO C standard not defined", false );
 #endif
 
-/* Only GCC 14 is supported at the moment. Future update could expand to clang if desired. */
+/* Only GCC 8+ is supported at the moment. Future update could expand to clang if desired. */
 #if( defined( __GNUC__ ) && __GNUC__ )
 TEST_ASSERT_GE_UINT( "Test Environment: Compiler at/above minimum GCC version", __GNUC__, TEST_MIN_SUPPORTED_GCC_VERSION );
 TEST_ASSERT_LE_UINT( "Test Environment: Compiler at/below maximum GCC version", __GNUC__, TEST_MAX_SUPPORTED_GCC_VERSION );
