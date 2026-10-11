@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 RESULT_TAG_PATTERN = re.compile(
-    r"(?:Requirement Tag|Requirements):\s*(?P<tag>\S+)"
+    r"(?:Requirement Tag|Requirements):\s*(?P<tags>[^\r\n]+)"
 )
 RESULT_REQUIREMENTS_SECTION_PATTERN = re.compile(
     r"^#{1,6}\s+Requirements\s*$\r?\n(?P<tags>.*?)(?=^#{1,6}\s|\Z)",
@@ -113,7 +113,8 @@ def load_results(files: list[Path], root: Path) -> dict[str, list[tuple[str, boo
         result_path = path.relative_to(root).as_posix()
         failed = any(int(match.group("count")) > 0 for match in FAIL_PATTERN.finditer(content))
         for match in RESULT_TAG_PATTERN.finditer(content):
-            traces.setdefault(match.group("tag"), []).append((result_path, failed))
+            for tag in REQUIREMENT_TAG_PATTERN.findall(match.group("tags")):
+                traces.setdefault(tag, []).append((result_path, failed))
         for match in RESULT_REQUIREMENTS_SECTION_PATTERN.finditer(content):
             for tag in REQUIREMENT_TAG_PATTERN.findall(match.group("tags")):
                 traces.setdefault(tag, []).append((result_path, failed))
